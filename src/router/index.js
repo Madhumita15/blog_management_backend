@@ -10,4 +10,11 @@ router.use("/api", blogRouter);
 router.use("/api", categoryRouter);
 router.use("/api", userRequestRouter);
 
+router.get("/", (req, res) => {
+  res.status(200).json({
+    status: true,
+    message: "backend is running ",
+  });
+});
+
 module.exports = router;
