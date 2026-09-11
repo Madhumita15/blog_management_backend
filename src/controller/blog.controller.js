@@ -58,11 +58,51 @@ class BlogController {
             });
           }
         }
-        // console.log(req.user)
         if (!req.user) {
-          const blogs = await Blog.find({ status: "published" })
-            .populate("author", "name email")
-            .populate("category", "name");
+          const blogs = await Blog.aggregate([
+            {
+              $match: { status: "published" },
+            },
+            {
+              $lookup: {
+                from: "users",
+                localField: "author",
+                foreignField: "_id",
+                as: "author",
+              },
+            },
+            {
+              $unwind: "$author",
+            },
+            {
+              $lookup: {
+                from: "categories",
+                localField: "category",
+                foreignField: "_id",
+                as: "category",
+              },
+            },
+            {
+              $unwind: "$category",
+            },
+            {
+              $project: {
+                _id: 1,
+                blog_image: 1,
+                content: 1,
+                status: 1,
+                title: 1,
+                createdAt: 1,
+                updatedAt: 1,
+                "author._id": 1,
+                "author._id": 1,
+                "author.name": 1,
+                "author.email": 1,
+                "category._id": 1,
+                "category.name": 1,
+              },
+            },
+          ]);
           if (!blogs || blogs.length === 0) {
             return res.status(httpStatusCode.OK).json({
               status: true,
@@ -81,9 +121,50 @@ class BlogController {
         if (req.user.role === "admin") {
           const { status } = req.query;
           const filter = status ? { status: status } : {};
-          const allBlog = await Blog.find(filter)
-            .populate("author", "name email")
-            .populate("category", "name _id");
+
+          const allBlog = await Blog.aggregate([
+            {
+              $match: filter,
+            },
+            {
+              $lookup: {
+                from: "users",
+                localField: "author",
+                foreignField: "_id",
+                as: "author",
+              },
+            },
+            {
+              $unwind: "$author",
+            },
+            {
+              $lookup: {
+                from: "categories",
+                localField: "category",
+                foreignField: "_id",
+                as: "category",
+              },
+            },
+            {
+              $unwind: "$category",
+            },
+            {
+              $project: {
+                _id: 1,
+                blog_image: 1,
+                content: 1,
+                status: 1,
+                title: 1,
+                createdAt: 1,
+                updatedAt: 1,
+                "author._id": 1,
+                "author.name": 1,
+                "author.email": 1,
+                "category._id": 1,
+                "category.name": 1,
+              }
+            }
+          ]);
           if (!allBlog || allBlog.length === 0) {
             return res.status(httpStatusCode.OK).json({
               status: true,
@@ -100,9 +181,50 @@ class BlogController {
         }
 
         if (req.user.role === "writer") {
-          const allBlog = await Blog.find({ author: req.user._id })
-            .populate("author", "name email")
-            .populate("category", "name _id");
+          const allBlog = await Blog.aggregate([
+            {
+              $match: { author: req.user._id },
+            },
+            {
+              $lookup: {
+                from: "users",
+                localField: "author",
+                foreignField: "_id",
+                as: "author",
+              },
+            },
+            {
+              $unwind: "$author",
+            },
+            {
+              $lookup: {
+                from: "categories",
+                localField: "category",
+                foreignField: "_id",
+                as: "category",
+              },
+            },
+            {
+              $unwind: "$category",
+            },
+            {
+              $project: {
+                _id: 1,
+                blog_image: 1,
+                content: 1,
+                status: 1,
+                title: 1,
+                createdAt: 1,
+                updatedAt: 1,
+                "author._id": 1,
+                "author._id": 1,
+                "author.name": 1,
+                "author.email": 1,
+                "category._id": 1,
+                "category.name": 1,
+              },
+            },
+          ]);
           if (!allBlog || allBlog.length === 0) {
             return res.status(httpStatusCode.OK).json({
               status: true,
@@ -132,9 +254,12 @@ class BlogController {
             message: "Blog is not found",
           });
         }
-        console.log("userid", req.user._id, "blogid", blogById.author)
+        console.log("userid", req.user._id, "blogid", blogById.author);
 
-        if (req.user.role === "writer" && blogById.author.toString() !== req.user._id.toString()) {
+        if (
+          req.user.role === "writer" &&
+          blogById.author.toString() !== req.user._id.toString()
+        ) {
           return res.status(httpStatusCode.FORBIDDEN).json({
             status: false,
             message: "your are not be able to update this blog",
@@ -221,7 +346,10 @@ class BlogController {
           });
         }
 
-        if (req.user.role === "writer" && blogById.author.toString() !== req.user._id.toString()) {
+        if (
+          req.user.role === "writer" &&
+          blogById.author.toString() !== req.user._id.toString()
+        ) {
           return res.status(httpStatusCode.FORBIDDEN).json({
             status: false,
             message: "your are not be able to update this blog",
