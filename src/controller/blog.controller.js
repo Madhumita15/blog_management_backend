@@ -13,7 +13,7 @@ class BlogController {
           content: content,
           category: category,
         });
-        console.log("req file", req.file);
+        // console.log("req file", req.file);
 
         if (req.file) {
           newBlog.blog_image = req.file.path;
@@ -85,6 +85,7 @@ class BlogController {
             {
               $unwind: "$category",
             },
+            
             {
               $project: {
                 _id: 1,
@@ -92,6 +93,7 @@ class BlogController {
                 content: 1,
                 status: 1,
                 title: 1,
+                likesCount: 1,
                 createdAt: 1,
                 updatedAt: 1,
                 "author._id": 1,
@@ -100,8 +102,10 @@ class BlogController {
                 "author.email": 1,
                 "category._id": 1,
                 "category.name": 1,
+              
               },
-            },
+            }
+            
           ]);
           if (!blogs || blogs.length === 0) {
             return res.status(httpStatusCode.OK).json({
