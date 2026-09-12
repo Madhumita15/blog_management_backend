@@ -8,14 +8,14 @@ class AuthMidlleware {
     try {
       const accessToken = req.headers.authorization;
       // console.log("headers",req.cookies)
-      if (!accessToken || !accessToken.split("Bearer ")) {
+      if (!accessToken || !accessToken.accessToken("Bearer ")) {
         return res.status(httpStatusCode.UNAUTHORIZED).json({
           status: false,
           message: "Token is not provided",
         });
       }
       const cleanToken = accessToken.split(" ")[1];
-      const decode = await jwt.verify(
+      const decode =  jwt.verify(
         cleanToken,
         process.env.JWT_ACCESS_SECRET_KEY,
       );
