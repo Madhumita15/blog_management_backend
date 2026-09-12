@@ -93,9 +93,8 @@ class UserController {
         });
       }
       const currentTime = new Date();
-      const expirationTime = new Date(
-        emailVerification.createdAt.getTime() + 15 * 60 * 1000,
-      );
+      const expirationTime = emailVerification.createdAt.getTime() + 15 * 60 * 1000
+      
       if (currentTime > expirationTime) {
         await sendEmail.verifyEmail(req, existingUser);
         return res.status(httpStatusCode.BAD_REQUEST).json({
