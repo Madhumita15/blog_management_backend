@@ -8,7 +8,7 @@ class AuthMidlleware {
     try {
       const accessToken = req.headers.authorization;
       // console.log("headers",req.cookies)
-      if (!accessToken || !accessToken.accessToken("Bearer ")) {
+      if (!accessToken || !accessToken.startsWith("Bearer ")) {
         return res.status(httpStatusCode.UNAUTHORIZED).json({
           status: false,
           message: "Token is not provided",
@@ -19,7 +19,7 @@ class AuthMidlleware {
         cleanToken,
         process.env.JWT_ACCESS_SECRET_KEY,
       );
-      const user = await User.findById(decode.id);
+      const user = await User.findById(decode._id);
       if (!user) {
         return res.status(httpStatusCode.NOT_FOUND).json({
           status: false,
