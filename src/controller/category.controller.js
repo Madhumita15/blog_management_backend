@@ -26,11 +26,12 @@ class CategoryController {
 
       case "GET": {
         const category = await Category.find();
+
         if (!category || category.length === 0) {
           return res.status(httpStatusCode.OK).json({
             status: true,
             message: "Category not found",
-            data: []
+            data: [],
           });
         } else {
           return res.status(httpStatusCode.OK).json({

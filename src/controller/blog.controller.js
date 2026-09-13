@@ -42,6 +42,10 @@ class BlogController {
 
       case "GET": {
         const id = req.params.id;
+        const page = Number(req.query.page) || 1;
+        const limit = Number(req.query.limit) || 5;
+       
+        const skip = (page - 1) * limit;
         if (id) {
           const blog = await Blog.findById(id);
           if (!blog) {
@@ -85,7 +89,7 @@ class BlogController {
             {
               $unwind: "$category",
             },
-            
+
             {
               $project: {
                 _id: 1,
@@ -102,10 +106,8 @@ class BlogController {
                 "author.email": 1,
                 "category._id": 1,
                 "category.name": 1,
-              
               },
-            }
-            
+            },
           ]);
           if (!blogs || blogs.length === 0) {
             return res.status(httpStatusCode.OK).json({
@@ -152,6 +154,7 @@ class BlogController {
             {
               $unwind: "$category",
             },
+
             {
               $project: {
                 _id: 1,
@@ -166,9 +169,17 @@ class BlogController {
                 "author.email": 1,
                 "category._id": 1,
                 "category.name": 1,
-              }
-            }
+              },
+            },
+            {
+              $skip: skip,
+            },
+            {
+              $limit: limit,
+            },
           ]);
+
+          const totalBlogs = await Blog.countDocuments(filter);
           if (!allBlog || allBlog.length === 0) {
             return res.status(httpStatusCode.OK).json({
               status: true,
@@ -180,6 +191,9 @@ class BlogController {
               status: true,
               message: "All Blogs gets successfully!",
               data: allBlog,
+              totalBlogs: totalBlogs,
+              currentPage: page,
+              totalPages: Math.ceil(totalBlogs / limit),
             });
           }
         }
@@ -228,7 +242,14 @@ class BlogController {
                 "category.name": 1,
               },
             },
+            {
+              $skip: skip,
+            },
+            {
+              $limit: limit,
+            },
           ]);
+          const totalBlogs = await Blog.countDocuments({author: req.user._id});
           if (!allBlog || allBlog.length === 0) {
             return res.status(httpStatusCode.OK).json({
               status: true,
@@ -240,6 +261,9 @@ class BlogController {
               status: true,
               message: "All Blogs gets successfully!",
               data: allBlog,
+              totalBlogs: totalBlogs,
+              currentPage: page,
+              totalPages: Math.ceil(totalBlogs / limit),
             });
           }
         }

@@ -45,7 +45,7 @@ class AuthMidlleware {
 
   static roleCheck(...values) {
     return (req, res, next) => {
-      console.log("rolecheck done");
+      // console.log("rolecheck done");
       if (!values.includes(req.user.role)) {
         return res.status(httpStatusCode.FORBIDDEN).json({
           status: false,
@@ -58,7 +58,7 @@ class AuthMidlleware {
 
   static async checkSecretKey(req, res, next) {
     const secretKey = req.headers["x-secret-key"];
-    console.log("secretkey", secretKey);
+    // console.log("secretkey", secretKey);
     if (!secretKey) {
       return res.status(httpStatusCode.UNAUTHORIZED).json({
         status: false,
