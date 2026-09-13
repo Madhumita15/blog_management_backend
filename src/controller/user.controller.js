@@ -93,8 +93,9 @@ class UserController {
         });
       }
       const currentTime = new Date();
-      const expirationTime = emailVerification.createdAt.getTime() + 15 * 60 * 1000
-      
+      const expirationTime =
+        emailVerification.createdAt.getTime() + 15 * 60 * 1000;
+
       if (currentTime > expirationTime) {
         await sendEmail.verifyEmail(req, existingUser);
         return res.status(httpStatusCode.BAD_REQUEST).json({
@@ -118,8 +119,6 @@ class UserController {
       });
     }
   }
-
-  
 
   async login(req, res) {
     try {
@@ -214,7 +213,7 @@ class UserController {
         expiresIn: "20m",
       });
 
-      const resetLink = `${process.env.FRONTEND_HOST}/account/forgotPassword/${user._id}/${tokenLink}`;
+      const resetLink = `${process.env.FRONTEND_URL}/account/forgotPassword/${user._id}/${tokenLink}`;
 
       await sendEmail.forgotPassword(req, user, resetLink);
 
@@ -325,7 +324,6 @@ class UserController {
     }
   }
 
-  
   async logout(req, res) {
     try {
       const id = req.user._id;
